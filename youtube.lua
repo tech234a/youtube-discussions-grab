@@ -7,8 +7,8 @@ JSON = (loadfile "JSON.lua")()
 
 local item_dir = os.getenv("item_dir")
 local warc_file_base = os.getenv("warc_file_base")
-local v1_items_s = os.getenv("v1_items")
-local v2_items_s = os.getenv("v2_items")
+-- local v1_items_s = os.getenv("v1_items")
+-- local v2_items_s = os.getenv("v2_items")
 local item_type = nil
 local item_name = nil
 local item_value = nil
@@ -33,14 +33,14 @@ local api_key = nil
 local api_version = nil
 local sorted_new = false
 
-local v1_items = {}
-for s in string.gmatch(v1_items_s, "([^;]+)") do
-  v1_items[s] = true
-end
-local v2_items = {}
-for s in string.gmatch(v2_items_s, "([^;]+)") do
-  v2_items[s] = true
-end
+-- local v1_items = {}
+-- for s in string.gmatch(v1_items_s, "([^;]+)") do
+--   v1_items[s] = true
+-- end
+-- local v2_items = {}
+-- for s in string.gmatch(v2_items_s, "([^;]+)") do
+--   v2_items[s] = true
+-- end
 
 io.stdout:setvbuf("no")
 math.randomseed(os.time())
@@ -85,13 +85,13 @@ queue_item = function(type_, value)
 end
 
 get_item = function(url)
-  local match = string.match(url, "^https?://www%.youtube%.com/watch%?v=(" .. video_pattern .. ")$")
-  local type_ = "v"
-  if v2_items[match] then
-    type_ = "v2"
-  elseif v1_items[match] then
-    type_ = "v1"
-  end
+  local match = "discussion test" -- string.match(url, "^https?://www%.youtube%.com/watch%?v=(" .. video_pattern .. ")$")
+  local type_ = "c"
+  -- if v2_items[match] then
+  --   type_ = "v2"
+  -- elseif v1_items[match] then
+  --   type_ = "v1"
+  -- end
   if match and type_ then
     return type_, match
   end

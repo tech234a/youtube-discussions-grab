@@ -225,7 +225,7 @@ class WgetArgs(object):
             '--header', "x-youtube-client-name: 1",
             '--header', "x-youtube-client-version: "+INNERTUBE_CLIENT_VERSION,
             '--truncate-output',
-            '--method', 'POST'
+            '--method', 'POST',
             '-e', 'robots=off',
             '--rotate-dns',
             '--recursive', '--level=inf',
@@ -252,8 +252,8 @@ class WgetArgs(object):
             item_type, item_value = item_name.split(':', 1)
             if item_type in ('c'):
                 wget_args.extend(['--warc-header', 'youtube-channel-discussions: '+item_value])
+                wget_args.extend(['--body-data', str({"context": {"client": {"hl": "en", "clientName": "WEB", "clientVersion": INNERTUBE_CLIENT_VERSION, "timeZone": "UTC"}, "user": {"lockedSafetyMode": False}}, "continuation": generate_discussion_continuation(item_value)})])
                 wget_args.append('https://www.youtube.com/youtubei/v1/browse?key='+INNERTUBE_API_KEY)
-                wget_args.append(['--post-data', str({"context": {"client": {"hl": "en", "clientName": "WEB", "clientVersion": INNERTUBE_CLIENT_VERSION, "timeZone": "UTC"}, "user": {"lockedSafetyMode": False}}, "continuation": generate_discussion_continuation(item_value)})])
                 # if item_type == 'v1':
                 #     v_items[0].append(item_value)
                 # elif item_type == 'v2':
@@ -290,7 +290,7 @@ project = Project(
 
 pipeline = Pipeline(
     CheckIP(),
-    GetItemFromTracker('http://{}/{}/multi={}/'
+    GetItemFromTracker('http://{}/{}/' #multi={}/'
         .format(TRACKER_HOST, TRACKER_ID, MULTI_ITEM_SIZE),
         downloader, VERSION),
     PrepareDirectories(warc_prefix='youtube'),
@@ -300,9 +300,9 @@ pipeline = Pipeline(
         accept_on_exit_code=[0, 4, 8],
         env={
             'item_dir': ItemValue('item_dir'),
-            'warc_file_base': ItemValue('warc_file_base'),
-            'v1_items': ItemValue('v1_items'),
-            'v2_items': ItemValue('v2_items')
+            'warc_file_base': ItemValue('warc_file_base') #,
+            # 'v1_items': ItemValue('v1_items'),
+            # 'v2_items': ItemValue('v2_items')
         }
     ),
     SetBadUrls(),
