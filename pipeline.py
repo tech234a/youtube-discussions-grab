@@ -253,7 +253,7 @@ class WgetArgs(object):
             item_type, item_value = item_name.split(':', 1)
             if item_type in ('c'):
                 wget_args.extend(['--warc-header', 'youtube-channel-discussions: '+item_value])
-                wget_args.extend(['--body-data', str({"context": {"client": {"hl": "en", "clientName": "WEB", "clientVersion": INNERTUBE_CLIENT_VERSION, "timeZone": "UTC"}, "user": {"lockedSafetyMode": False}}, "continuation": generate_discussion_continuation(item_value)})])
+                wget_args.extend(['--body-data', str({"context": {"client": {"hl": "en", "clientName": "WEB", "clientVersion": INNERTUBE_CLIENT_VERSION, "timeZone": "UTC"}}, "continuation": generate_discussion_continuation(item_value)})])
                 wget_args.append('https://www.youtube.com/youtubei/v1/browse?key='+INNERTUBE_API_KEY)
                 # if item_type == 'v1':
                 #     v_items[0].append(item_value)
@@ -291,7 +291,7 @@ project = Project(
 
 pipeline = Pipeline(
     CheckIP(),
-    GetItemFromTracker('http://{}/{}/' #multi={}/'
+    GetItemFromTracker('http://{}/{}/multi={}/'
         .format(TRACKER_HOST, TRACKER_ID, MULTI_ITEM_SIZE),
         downloader, VERSION),
     PrepareDirectories(warc_prefix='youtube'),

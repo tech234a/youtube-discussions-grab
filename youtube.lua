@@ -441,7 +441,17 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
   end
 
   local function next_endpoint(continuation, click_tracking_params, api_url)
+    set_current_context({["client"] = {}, ["request"] = {}, ["clickTracking"] = {}})
     current_context["clickTracking"]["clickTrackingParams"] = click_tracking_params
+    post_headers = {
+      ["Content-Type"]=nil,
+      ["X-Youtube-Client-Name"]="1",
+      ["X-Youtube-Client-Version"]="2.20210924.00.00",
+      -- Referer=current_referer
+    }
+
+    api_key = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+
     post_headers["Content-Type"] = "application/json"
     table.insert(
       urls,
@@ -744,9 +754,9 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
               local comment_header_renderer = item["commentsHeaderRenderer"]
               if comment_header_renderer then
                 for _, d in pairs(comment_header_renderer["sortMenu"]["sortFilterSubMenuRenderer"]["subMenuItems"]) do
-                  if not d["selected"] and d["title"] ~= "Newest first" then
-                    error("Unknown ordering.")
-                  end
+                  -- if not d["selected"] and d["title"] ~= "Newest first" then
+                  --   error("Unknown ordering.")
+                  -- end
                   if d["title"] == "Newest first" then
                     queue_continuation_new(d["serviceEndpoint"])
                     sorted_new = true
