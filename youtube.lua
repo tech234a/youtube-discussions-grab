@@ -165,7 +165,7 @@ allowed = function(url, parenturl)
 
   if string.match(url, "^https?://www%.youtube%.com/comment_service_ajax")
     or string.match(url, "^https?://[^/]*googlevideo%.com/")
-    or string.match(url, "^https?://[^/]*youtube.com/youtubei/v1/next")
+    or string.match(url, "^https?://[^/]*youtube.com/youtubei/v1/browse")
     or string.match(url, "^https?://[^/]*ytimg%.com") then
     return true
   end
@@ -719,7 +719,7 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         end
       end
     end
-    if string.match(url, "^https?://[^/]*youtube.com/youtubei/v1/next") then
+    if string.match(url, "^https?://[^/]*youtube.com/youtubei/v1/browse") then
       local data = JSON:decode(html)["onResponseReceivedEndpoints"]
       local just_sorted = false
       for _, d in pairs(data) do

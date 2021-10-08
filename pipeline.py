@@ -23,6 +23,8 @@ from seesaw.pipeline import Pipeline
 from seesaw.project import Project
 from seesaw.util import find_executable
 
+from base64 import b64encode, b64decode
+
 if StrictVersion(seesaw.__version__) < StrictVersion('0.8.5'):
     raise Exception('This pipeline needs seesaw version 0.8.5 or higher.')
 
@@ -54,9 +56,13 @@ if not WGET_AT:
 # It will be added to the WARC files and reported to the tracker.
 VERSION = '20211001.01'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'
-TRACKER_ID = 'youtube'
-TRACKER_HOST = 'legacy-api.arpa.li'
+TRACKER_ID = 'youtube-discussions'
+TRACKER_HOST = 'localhost:9080' #'legacy-api.arpa.li'
 MULTI_ITEM_SIZE = 1 # DO NOT CHANGE
+
+
+INNERTUBE_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+INNERTUBE_CLIENT_VERSION = "2.20210924.00.00"
 
 ###########################################################################
 # This section defines project-specific tasks.
@@ -188,6 +194,21 @@ def stats_id_function(item):
 
     return d
 
+# function from coletdjnz https://github.com/coletdjnz/yt-dlp-dev/blob/3ed23d92b524811d9afa3d95358687b083326e58/yt_dlp/extractor/youtube.py#L4392-L4406
+def generate_discussion_continuation(channel_id):
+    """
+    Generates initial discussion section continuation token from given video id
+    """
+    ch_id = bytes(channel_id.encode('utf-8'))
+
+    def _generate_secondary_token():
+        first = b64decode('EgpkaXNjdXNzaW9uqgM2IiASGA==')
+        second = b64decode('KAEwAXgCOAFCEGNvbW1lbnRzLXNlY3Rpb24=')
+        return b64encode(first + ch_id + second)
+
+    first = b64decode('4qmFsgJ4Ehg=')
+    second = b64decode('Glw=')
+    return b64encode(first + ch_id + second + _generate_secondary_token()).decode('utf-8')
 
 class WgetArgs(object):
     def realize(self, item):
@@ -201,7 +222,10 @@ class WgetArgs(object):
             '-o', ItemInterpolation('%(item_dir)s/wget.log'),
             '--no-check-certificate',
             '--output-document', ItemInterpolation('%(item_dir)s/wget.tmp'),
+            '--header', "x-youtube-client-name: 1",
+            '--header', "x-youtube-client-version: "+INNERTUBE_CLIENT_VERSION,
             '--truncate-output',
+            '--method', 'POST'
             '-e', 'robots=off',
             '--rotate-dns',
             '--recursive', '--level=inf',
@@ -220,24 +244,25 @@ class WgetArgs(object):
             '--header', 'Accept-Language: en-US;q=0.9, en;q=0.8'
         ]
 
-        v_items = [[], []]
+        # v_items = [[], []]
 
         for item_name in item['item_name'].split('\0'):
             wget_args.extend(['--warc-header', 'x-wget-at-project-item-name: '+item_name])
             wget_args.append('item-name://'+item_name)
             item_type, item_value = item_name.split(':', 1)
-            if item_type in ('v', 'v1', 'v2'):
-                wget_args.extend(['--warc-header', 'youtube-video: '+item_value])
-                wget_args.append('https://www.youtube.com/watch?v='+item_value)
-                if item_type == 'v1':
-                    v_items[0].append(item_value)
-                elif item_type == 'v2':
-                    v_items[1].append(item_value)
+            if item_type in ('c'):
+                wget_args.extend(['--warc-header', 'youtube-channel-discussions: '+item_value])
+                wget_args.append('https://www.youtube.com/youtubei/v1/browse?key='+INNERTUBE_API_KEY)
+                wget_args.append(['--post-data', str({"context": {"client": {"hl": "en", "clientName": "WEB", "clientVersion": INNERTUBE_CLIENT_VERSION, "timeZone": "UTC"}, "user": {"lockedSafetyMode": False}}, "continuation": generate_discussion_continuation(item_value)})])
+                # if item_type == 'v1':
+                #     v_items[0].append(item_value)
+                # elif item_type == 'v2':
+                #     v_items[1].append(item_value)
             else:
                 raise ValueError('item_type not supported.')
 
-        item['v1_items'] = ';'.join(v_items[0])
-        item['v2_items'] = ';'.join(v_items[1])
+        # item['v1_items'] = ';'.join(v_items[0])
+        # item['v2_items'] = ';'.join(v_items[1])
 
         item['item_name_newline'] = item['item_name'].replace('\0', '\n')
 
