@@ -166,6 +166,7 @@ allowed = function(url, parenturl)
   if string.match(url, "^https?://www%.youtube%.com/comment_service_ajax")
     or string.match(url, "^https?://[^/]*googlevideo%.com/")
     or string.match(url, "^https?://[^/]*youtube.com/youtubei/v1/browse")
+    or string.match(url, "^https?://[^/]*youtube.com/youtubei/v1/comment/get_comment_replies")
     or string.match(url, "^https?://[^/]*ytimg%.com") then
     return true
   end
