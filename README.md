@@ -1,4 +1,4 @@
-youtube-grab
+youtube-discussions-grab
 =============
 
 More information about the archiving project can be found on the ArchiveTeam wiki: [YouTube](http://archiveteam.org/index.php?title=YouTube)
@@ -16,6 +16,10 @@ Running with a warrior
 -------------------------
 
 Follow the [instructions on the ArchiveTeam wiki](http://archiveteam.org/index.php?title=Warrior) for installing the Warrior, and select the "YouTube" project in the Warrior interface.
+
+Running with Docker
+-------------------
+Instructions for running this project using Docker and Watchtower are available [here](https://wiki.archiveteam.org/index.php?title=Running_Archive_Team_Projects_with_Docker). Please make sure to use Watchtower for automatic code updates.
 
 Running without a warrior
 -------------------------

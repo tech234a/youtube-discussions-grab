@@ -392,10 +392,10 @@ class WgetArgs(object):
 # This will be shown in the warrior management panel. The logo should not
 # be too big. The deadline is optional.
 project = Project(
-    title = 'YouTube',
+    title = 'YouTube Discussions',
     project_html = '''
     <img class="project-logo" alt="logo" src="https://wiki.archiveteam.org/images/4/4d/YouTube_logo_2017.png" height="50px"/>
-    <h2>youtube.com <span class="links"><a href="https://youtube.com/">Website</a> &middot; <a href="http://tracker.archiveteam.org/youtube/">Leaderboard</a></span></h2>
+    <h2>youtube.com <span class="links"><a href="https://www.youtube.com/">Website</a> &middot; <a href="http://tracker.archiveteam.org/youtube-discussions/">Leaderboard</a></span></h2>
     '''
 )
 

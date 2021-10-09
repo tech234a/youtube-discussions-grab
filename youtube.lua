@@ -85,7 +85,7 @@ queue_item = function(type_, value)
 end
 
 get_item = function(url)
-  local match = "discussion test" -- string.match(url, "^https?://www%.youtube%.com/watch%?v=(" .. video_pattern .. ")$")
+  local match = "channel-discussions" -- string.match(url, "^https?://www%.youtube%.com/watch%?v=(" .. video_pattern .. ")$")
   local type_ = "d"
   -- if v2_items[match] then
   --   type_ = "v2"
