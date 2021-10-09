@@ -513,10 +513,12 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
     if not continuation_endpoint and not sorted_new then
       print("switching order")
       continuation_endpoint = continuation_item_renderer
+      -- print(table.show(continuation_endpoint))
     end
     if not continuation_endpoint then
       print("getting more replies")
       continuation_endpoint = continuation_item_renderer["button"]["buttonRenderer"]["command"]
+      -- print(table.show(continuation_endpoint))
     end
     next_endpoint(
       continuation_endpoint["continuationCommand"]["token"],
@@ -755,6 +757,7 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
     if string.match(url, "^https?://[^/]*youtube.com/youtubei/v1/browse") then
       local data = JSON:decode(html)["onResponseReceivedEndpoints"]
       local just_sorted = false
+      local sorted_new = true
       for _, d in pairs(data) do
         local continuation_items_action = d["appendContinuationItemsAction"]
         if not continuation_items_action then
@@ -764,10 +767,12 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
           error("Bad continuation_items_action found.")
         end
         local continuation_items = continuation_items_action["continuationItems"]
+        -- print(table.show(continuation_items_action))
         if continuation_items then
           for _, item in pairs(continuation_items) do
             if sorted_new and not just_sorted then
               local continuation_item_renderer = item["continuationItemRenderer"]
+              -- print(table.show(continuation_item_renderer))
               if continuation_item_renderer then
                 print("getting more comments")
                 queue_continuation_new(continuation_item_renderer)
@@ -780,7 +785,8 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
                   --   error("Unknown ordering.")
                   -- end
                   if d["title"] == "Newest first" then
-                    queue_continuation_new(d["serviceEndpoint"])
+                    -- print(table.show(d["serviceEndpoint"]))
+                    -- queue_continuation_new(d["serviceEndpoint"])
                     sorted_new = true
                     just_sorted = true
                   end
