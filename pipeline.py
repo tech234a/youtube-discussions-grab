@@ -25,6 +25,8 @@ from seesaw.util import find_executable
 
 from base64 import b64encode, b64decode
 
+from json import dumps
+
 if StrictVersion(seesaw.__version__) < StrictVersion('0.8.5'):
     raise Exception('This pipeline needs seesaw version 0.8.5 or higher.')
 
@@ -54,15 +56,15 @@ if not WGET_AT:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20211001.01'
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'
+VERSION = '20211009.01'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0'
 TRACKER_ID = 'youtube-discussions'
 TRACKER_HOST = 'localhost:9080' #'legacy-api.arpa.li'
 MULTI_ITEM_SIZE = 1 # DO NOT CHANGE
 
 
 INNERTUBE_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-INNERTUBE_CLIENT_VERSION = "2.20210924.00.00"
+INNERTUBE_CLIENT_VERSION = "2.20211008.01.00"
 
 ###########################################################################
 # This section defines project-specific tasks.
@@ -210,6 +212,114 @@ def generate_discussion_continuation(channel_id):
     second = b64decode('Glw=')
     return b64encode(first + ch_id + second + _generate_secondary_token()).decode('utf-8')
 
+def generateContext():
+    context = {"client" : {}, "user" : {}, "request" : {}, "clickTracking" : {}}
+
+    # Currently Missing:
+    # remoteHost
+    # visitorData
+    # originalUrl
+    # configInfo appInstallData
+    # mainAppWebInfo graftUrl
+    context["client"]["hl"] = "en"
+    context["client"]["gl"] = "US"
+    context["client"]["deviceMake"] = ""
+    context["client"]["deviceModel"] = ""
+    context["client"]["userAgent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0,gzip(gfe)"
+    context["client"]["clientName"] = "WEB"
+    context["client"]["clientVersion"] = INNERTUBE_CLIENT_VERSION
+    context["client"]["osName"] = "Windows"
+    context["client"]["osVersion"] = "10.0"
+    context["client"]["screenPixelDensity"] = 1
+    context["client"]["platform"] = "DESKTOP"
+    context["client"]["clientFormFactor"] = "UNKNOWN_FORM_FACTOR"
+    # context["client"]["configInfo"] = {}
+    context["client"]["screenDensityFloat"] = 1
+    context["client"]["userInterfaceTheme"] = "USER_INTERFACE_THEME_LIGHT"
+    context["client"]["timeZone"] = "UTC"
+    context["client"]["browserName"] = "Firefox"
+    context["client"]["browserVersion"] = "93.0"
+    context["client"]["screenWidthPoints"] = 1920
+    context["client"]["screenHeightPoints"] = 1080
+    context["client"]["utcOffsetMinutes"] = 0
+    context["client"]["mainAppWebInfo"] = {
+      # graftUrl=current_referer,
+      "webDisplayMode":"WEB_DISPLAY_MODE_BROWSER",
+      "isWebNativeShareAvailable":False
+    }
+    context["user"]["lockedSafetyMode"] = False
+    context["request"]["useSsl"] = True
+    context["request"]["internalExperimentFlags"] = {}
+    context["request"]["consistencyTokenJars"] = {}
+    # context["clickTracking"]["clickTrackingParams"]
+    context["adSignalsInfo"] = {
+      "params":[
+        {
+          "key":"dt",
+          "value": str(time.time()).replace(".", "")[:13] #tostring(os.time(os.date("!*t"))) .. string.format("%03d", math.random(100))
+        }, {
+          "key":"flash",
+          "value":"0"
+        }, {
+          "key":"frm",
+          "value":"0"
+        }, {
+          "key":"u_tz",
+          "value":"0"
+        }, {
+          "key":"u_his",
+          "value":"4"
+        }, {
+          "key":"u_java",
+          "value":"false"
+        }, {
+          "key":"u_h",
+          "value":"1080"
+        }, {
+          "key":"u_w",
+          "value":"1920"
+        }, {
+          "key":"u_ah",
+          "value":"1040"
+        }, {
+          "key":"u_aw",
+          "value":"1920"
+        }, {
+          "key":"u_cd",
+          "value":"24"
+        }, {
+          "key":"u_nplug",
+          "value":"0"
+        }, {
+          "key":"u_nmime",
+          "value":"0"
+        }, {
+          "key":"bc",
+          "value":"31"
+        }, {
+          "key":"bih",
+          "value":"1080"
+        }, {
+          "key":"biw",
+          "value":"1903"
+        }, {
+          "key":"brdim",
+          "value":"-8,-8,-8,-8,1920,0,1936,1056,1920,1080"
+        }, {
+          "key":"vis",
+          "value":"1"
+        }, {
+          "key":"wgl",
+          "value":"true"
+        }, {
+          "key":"ca_type",
+          "value":"image"
+        }
+      ]
+    }
+
+    return context
+
 class WgetArgs(object):
     def realize(self, item):
         wget_args = [
@@ -251,9 +361,9 @@ class WgetArgs(object):
             wget_args.extend(['--warc-header', 'x-wget-at-project-item-name: '+item_name])
             wget_args.append('item-name://'+item_name)
             item_type, item_value = item_name.split(':', 1)
-            if item_type in ('c'):
+            if item_type in ('d'):
                 wget_args.extend(['--warc-header', 'youtube-channel-discussions: '+item_value])
-                wget_args.extend(['--body-data', str({"context": {"client": {"hl": "en", "clientName": "WEB", "clientVersion": INNERTUBE_CLIENT_VERSION, "timeZone": "UTC"}}, "continuation": generate_discussion_continuation(item_value)})])
+                wget_args.extend(['--body-data', dumps({"context": generateContext(), "continuation": generate_discussion_continuation(item_value)})])
                 wget_args.append('https://www.youtube.com/youtubei/v1/browse?key='+INNERTUBE_API_KEY)
                 # if item_type == 'v1':
                 #     v_items[0].append(item_value)

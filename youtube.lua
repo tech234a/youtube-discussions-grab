@@ -86,7 +86,7 @@ end
 
 get_item = function(url)
   local match = "discussion test" -- string.match(url, "^https?://www%.youtube%.com/watch%?v=(" .. video_pattern .. ")$")
-  local type_ = "c"
+  local type_ = "d"
   -- if v2_items[match] then
   --   type_ = "v2"
   -- elseif v1_items[match] then
@@ -357,18 +357,40 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
   end
 
   local function set_current_context(context)
+    -- Currently Missing:
+    -- remoteHost
+    -- visitorData
+    -- originalUrl
+    -- configInfo appInstallData
+    -- mainAppWebInfo graftUrl
+    context["client"]["hl"] = "en"
+    context["client"]["gl"] = "US"
+    context["client"]["deviceMake"] = ""
+    context["client"]["deviceModel"] = ""
+    context["client"]["userAgent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0,gzip(gfe)"
+    context["client"]["clientName"] = "WEB"
+    context["client"]["clientVersion"] = "2.20211008.01.00"
+    context["client"]["osName"] = "Windows"
+    context["client"]["osVersion"] = "10.0"
+    context["client"]["screenPixelDensity"] = 1
+    context["client"]["platform"] = "DESKTOP"
+    context["client"]["clientFormFactor"] = "UNKNOWN_FORM_FACTOR"
+    -- context["client"]["configInfo"] = {}
+    context["client"]["screenDensityFloat"] = 1
+    context["client"]["userInterfaceTheme"] = "USER_INTERFACE_THEME_LIGHT"
+    context["client"]["timeZone"] = "UTC"
+    context["client"]["browserName"] = "Firefox"
+    context["client"]["browserVersion"] = "93.0"
     context["client"]["screenWidthPoints"] = 1920
     context["client"]["screenHeightPoints"] = 1080
-    context["client"]["screenPixelDensity"] = 1
-    context["client"]["screenDensityFloat"] = 1
-    context["client"]["utcOffsetMinutes"] = 0
-    context["client"]["userInterfaceTheme"] = "USER_INTERFACE_THEME_LIGHT"
     context["client"]["utcOffsetMinutes"] = 0
     context["client"]["mainAppWebInfo"] = {
-      graftUrl=current_referer,
+      -- graftUrl=current_referer,
       webDisplayMode="WEB_DISPLAY_MODE_BROWSER",
       isWebNativeShareAvailable=false
     }
+    context["user"]["lockedSafetyMode"] = false
+    context["request"]["useSsl"] = true
     context["request"]["internalExperimentFlags"] = {}
     context["request"]["consistencyTokenJars"] = {}
     --context["clickTracking"]["clickTrackingParams"]
@@ -441,12 +463,12 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
   end
 
   local function next_endpoint(continuation, click_tracking_params, api_url)
-    set_current_context({["client"] = {}, ["request"] = {}, ["clickTracking"] = {}})
+    set_current_context({["client"] = {}, ["user"] = {}, ["request"] = {}, ["clickTracking"] = {}})
     current_context["clickTracking"]["clickTrackingParams"] = click_tracking_params
     post_headers = {
       ["Content-Type"]=nil,
       ["X-Youtube-Client-Name"]="1",
-      ["X-Youtube-Client-Version"]="2.20210924.00.00",
+      ["X-Youtube-Client-Version"]="2.20211008.01.00",
       -- Referer=current_referer
     }
 
@@ -520,13 +542,13 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         error("Could not find a session_token.")
       end
       -- INITIAL COMMENT CONTINUATION
-      current_referer = url
+      -- current_referer = url
       xsrf_token = ytplayer_data["XSRF_TOKEN"]
       post_headers = {
         ["Content-Type"]=nil,
         ["X-Youtube-Client-Name"]=ytplayer_data["INNERTUBE_CONTEXT_CLIENT_NAME"],
         ["X-Youtube-Client-Version"]=ytplayer_data["INNERTUBE_CONTEXT_CLIENT_VERSION"],
-        Referer=current_referer
+        -- Referer=current_referer
       }
       api_key = ytplayer_data["INNERTUBE_API_KEY"]
       api_version = ytplayer_data["INNERTUBE_API_VERSION"]
